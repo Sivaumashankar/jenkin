@@ -2,8 +2,10 @@ pipeline {
     agent { label 'AGENT-1' }
 
     environment {
-        PROJECT   = 'expense'
-        COMPONENT = 'backend'
+        PROJECT    = 'expense'
+        COMPONENT  = 'backend'
+        ACCOUNT_ID = '672911155156'
+        REGION     = 'us-east-1'
     }
 
     options {
@@ -38,10 +40,24 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
+        stage('Docker Build & Push to ECR') {
             steps {
                 dir('backend') {
-                    sh "docker build -t backend:${env.APP_VERSION} ."
+
+                    withAWS(region: "${REGION}", credentials: 'aws-creds') {
+
+                        sh """
+                        aws ecr get-login-password --region ${REGION} | \
+                        docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com
+
+                        docker build -t ${PROJECT}/${COMPONENT}:${APP_VERSION} .
+
+                        docker tag ${PROJECT}/${COMPONENT}:${APP_VERSION} \
+                        ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${PROJECT}/${COMPONENT}:${APP_VERSION}
+
+                        docker push ${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/${PROJECT}/${COMPONENT}:${APP_VERSION}
+                        """
+                    }
                 }
             }
         }
