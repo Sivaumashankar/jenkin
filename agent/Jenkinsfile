@@ -1,0 +1,25 @@
+pipeline {
+    agent { label 'AGENT-1' }
+
+    stages {
+
+        stage('Check User') {
+            steps {
+                sh 'whoami'
+            }
+        }
+
+        stage('Check Date') {
+            steps {
+                sh 'date'
+            }
+        }
+
+        stage('Check Workspace') {
+            steps {
+                sh 'pwd'
+            }
+        }
+
+    }
+}
