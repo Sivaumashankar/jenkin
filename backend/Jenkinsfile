@@ -14,6 +14,19 @@ pipeline {
 
     stages {
 
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Debug Files') {
+            steps {
+                sh 'pwd'
+                sh 'ls -R'
+            }
+        }
+
         stage('Read Version') {
             steps {
                 script {
@@ -38,3 +51,4 @@ pipeline {
         }
     }
 }
+
