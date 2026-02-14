@@ -15,15 +15,8 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                deleteDir()          // clean workspace
+                deleteDir()
                 checkout scm
-            }
-        }
-
-        stage('Debug Files') {
-            steps {
-                sh 'pwd'
-                sh 'ls -R'
             }
         }
 
@@ -37,14 +30,21 @@ pipeline {
             }
         }
 
-        stage('Print Info') {
+        stage('Install Dependencies') {
             steps {
-                echo "Project: ${PROJECT}"
-                echo "Component: ${COMPONENT}"
-                echo "Version: ${env.APP_VERSION}"
+                dir('backend') {
+                    sh 'npm install'
+                }
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                dir('backend') {
+                    sh "docker build -t backend:${env.APP_VERSION} ."
+                }
+            }
+        }
     }
 
     post {
@@ -59,4 +59,3 @@ pipeline {
         }
     }
 }
-
