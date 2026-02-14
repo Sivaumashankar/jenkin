@@ -4,7 +4,6 @@ pipeline {
     environment {
         PROJECT   = 'expense'
         COMPONENT = 'backend'
-        appversion = ''
     }
 
     options {
@@ -16,6 +15,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
+                deleteDir()          // clean workspace
                 checkout scm
             }
         }
@@ -28,16 +28,22 @@ pipeline {
         }
 
         stage('Read Version') {
-    steps {
-        script {
-            def packageJson = readJSON file: 'backend/package.json'
-            echo "Full JSON: ${packageJson}"
-            env.appversion = packageJson['version']
-            echo "Application Version is: ${env.appversion}"
+            steps {
+                script {
+                    def packageJson = readJSON file: 'backend/package.json'
+                    env.APP_VERSION = packageJson.version
+                    echo "Application Version is: ${env.APP_VERSION}"
+                }
+            }
         }
-    }
-}
 
+        stage('Print Info') {
+            steps {
+                echo "Project: ${PROJECT}"
+                echo "Component: ${COMPONENT}"
+                echo "Version: ${env.APP_VERSION}"
+            }
+        }
 
     }
 
