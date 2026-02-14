@@ -1,32 +1,40 @@
 pipeline {
     agent { label 'AGENT-1' }
-    environment{
-        PROJECT = 'expense'
+
+    environment {
+        PROJECT   = 'expense'
         COMPONENT = 'backend'
-        appversion =''
+        appversion = ''
     }
-    options{
+
+    options {
         disableConcurrentBuilds()
-        timeout( time: 30, unit: 'MINUTES')
+        timeout(time: 30, unit: 'MINUTES')
     }
 
     stages {
+
         stage('Read Version') {
             steps {
-                script{
+                script {
                     def packageJson = readJSON file: 'package.json'
-                    appversion = packageJson.version
-                    echo" version is : ${appversion} "
+                    env.appversion = packageJson.version
+                    echo "Application Version is: ${env.appversion}"
                 }
             }
         }
 
-        
-
     }
-    post { 
-        always { 
-            echo 'I will always say Hello again!'
+
+    post {
+        always {
+            echo 'Pipeline execution completed.'
+        }
+        success {
+            echo 'Build SUCCESS ✅'
+        }
+        failure {
+            echo 'Build FAILED ❌'
         }
     }
 }
